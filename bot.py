@@ -7,13 +7,17 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from config import TOKEN
-from keyboards import create_inline_kb
+from keyboards import create_inline_kb, create_inline_kb_start_lesson, create_inline_kb_lesson
+from database import Database
 
-topics = ['perfekt', 'pronomen', 'verb', 'adjective', 'noun', 'adverb']
+topics = ['perfekt', 'verb', 'adjective', 'noun', 'adverb']
+
+dbase = Database()
 
 
-class FSMUsersProgress(StatesGroup):
-    lesson = State()
+class FSMChooseTopic(StatesGroup):
+    perfekt_task = State()
+    perfekt_answer = State()
 
 
 logging.basicConfig(level=logging.INFO)
@@ -35,14 +39,41 @@ async def text(message: Message):
 
 @dp.callback_query(F.data == 'perfekt')
 async def perfekt(call: CallbackQuery, state: FSMContext):
-    await call.message.answer(text='User goes to state: FSMPerfekt')
-    await call.message.answer(text='User get a bunch of lessons')
-    await state.set_state(FSMUsersProgress.lesson)
+    await call.message.answer(text='User get a bunch of lessons',
+                              reply_markup=create_inline_kb_start_lesson())
+    await state.set_state(FSMChooseTopic.perfekt_task)
 
     await call.answer()
 
 
+@dp.message(FSMChooseTopic.perfekt_task)
+@dp.callback_query(F.data == 'get_task')
+async def perfekt_2(call: CallbackQuery, state: FSMContext):
+    task, correct_answer = dbase.get_random_task('perfekt')
+    await state.update_data(correct_answer=correct_answer)
+    await call.message.answer(text=task)
+    await state.set_state(FSMChooseTopic.perfekt_answer)
 
+    await call.answer()
+
+
+@dp.message(FSMChooseTopic.perfekt_task)
+@dp.callback_query(F.data == 'stop_lesson')
+async def perfekt_2(call: CallbackQuery, state: FSMContext):
+    await call.message.answer(text='Вы завершили урок')
+    await state.clear()
+
+    await call.answer()
+
+
+@dp.message(FSMChooseTopic.perfekt_answer)
+async def perfekt(message: Message, state: FSMContext):
+    user_data = await state.get_data()
+    correct_answer = user_data['correct_answer']
+    await message.answer(text=correct_answer,
+                         reply_markup=create_inline_kb_lesson())
+    await state.set_data({})
+    await state.set_state(FSMChooseTopic.perfekt_task)
 
 
 async def main():

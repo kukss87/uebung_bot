@@ -17,17 +17,6 @@ def get_db(db='bot.db'):
     return conn
 
 
-def connect_db():
-    conn = sq.connect(database='users.db')
-    conn.row_factory = sq.Row
-    return conn
-
-
-# create_db()
-# get_db()
-# connect_db()
-
-
 class Database:
     def __init__(self, db='bot.db'):
         self.conn = sq.connect(db)
@@ -35,11 +24,13 @@ class Database:
 
     def create_table(self, tablename):
         """Создание таблицы в БД"""
-        self.cur.execute(f"""CREATE TABLE IF NOT EXISTS {tablename} (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(f"""CREATE TABLE IF NOT EXISTS {tablename} (id INTEGER PRIMARY KEY AUTOINCREMENT,
                                                                       task TEXT,
                                                                       correct_answer TEXT)""")
-        self.conn.commit()
-        self.conn.close()
+        conn.commit()
+        conn.close()
         return f'Таблица {tablename} создана'
 
     @staticmethod
@@ -62,8 +53,18 @@ class Database:
         conn.close()
         return rows
 
+    def get_random_task(self, tablename):
+        """Выбор случайной задачи из БД"""
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(f"""SELECT task, correct_answer FROM {tablename} ORDER BY RANDOM() LIMIT 1""")
+        row = cur.fetchone()
+        conn.close()
+        return row
 
-dbase = Database()
-dbase.create_table('perfekt')
+
+# dbase = Database()
+# dbase.create_table('perfekt')
 # dbase.insert_data(tablename='perfekt', filename='perfekt.txt')
-print(dbase.get_data(tablename='perfekt'))
+# # print(dbase.get_data(tablename='perfekt'))
+# print(dbase.get_random_task(tablename='perfekt'))

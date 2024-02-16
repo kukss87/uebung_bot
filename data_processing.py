@@ -14,4 +14,5 @@ def process_data(filename):
     return fin
 
 
-print(process_data('perfekt.txt'))
+# print(process_data('perfekt.txt'))
+# create_new_file('perfekt2.txt')

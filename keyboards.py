@@ -1,9 +1,8 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 
 # Функция для формирования инлайн-клавиатуры на лету
-def create_inline_kb(width: int = 2,
+def create_inline_kb(width: int = 3,
                      *args: str,
                      **kwargs: str) -> InlineKeyboardMarkup:
     # Инициализируем билдер
@@ -28,3 +27,27 @@ def create_inline_kb(width: int = 2,
 
     # Возвращаем объект инлайн-клавиатуры
     return kb_builder.as_markup()
+
+
+def create_inline_kb_start_lesson():
+    builder = InlineKeyboardBuilder()
+    builder.add(InlineKeyboardButton(
+        text="Übung",
+        callback_data="get_task")
+    )
+
+    return builder.as_markup()
+
+
+def create_inline_kb_lesson():
+    builder = InlineKeyboardBuilder()
+    builder.add(
+        InlineKeyboardButton(
+            text="Stop",
+            callback_data="stop_lesson"),
+        InlineKeyboardButton(
+            text="Weiter",
+            callback_data="get_task")
+    )
+
+    return builder.as_markup()
