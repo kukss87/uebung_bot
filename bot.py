@@ -2,12 +2,19 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart, Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 
 from config import TOKEN
 from keyboards import create_inline_kb
 
 topics = ['perfekt', 'pronomen', 'verb', 'adjective', 'noun', 'adverb']
+
+
+class FSMUsersProgress(StatesGroup):
+    lesson = State()
+
 
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=TOKEN)
@@ -27,11 +34,15 @@ async def text(message: Message):
 
 
 @dp.callback_query(F.data == 'perfekt')
-async def perfekt(call: CallbackQuery):
+async def perfekt(call: CallbackQuery, state: FSMContext):
     await call.message.answer(text='User goes to state: FSMPerfekt')
     await call.message.answer(text='User get a bunch of lessons')
+    await state.set_state(FSMUsersProgress.lesson)
 
     await call.answer()
+
+
+
 
 
 async def main():
