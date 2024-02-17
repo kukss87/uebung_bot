@@ -63,8 +63,8 @@ class Database:
         return row
 
 
-# dbase = Database()
+dbase = Database()
 # dbase.create_table('perfekt')
 # dbase.insert_data(tablename='perfekt', filename='perfekt.txt')
-# # print(dbase.get_data(tablename='perfekt'))
+# print(len(dbase.get_data(tablename='perfekt')))
 # print(dbase.get_random_task(tablename='perfekt'))
